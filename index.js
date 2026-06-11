@@ -1,6 +1,4 @@
 const dns = require("node:dns");
-
-// Force Node to use public DNS servers
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const express = require('express')
@@ -29,25 +27,34 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
     const database = client.db("hireloop-db");
     const jobCollection = database.collection("jobs");
 
 
-     app.post('/api/jobs',async (req, res) => {
-        const job = req.body
-        console.log(job);
-        
-        const result =await jobCollection.insertOne(job)
-        res.send(result)
-        
+    app.post('/api/jobs', async (req, res) => {
+      const job = req.body
+      const result = await jobCollection.insertOne(job)
+      res.send(result)
     })
- 
+    app.get('/api/jobs', async(req,res) =>{
+      let query ={};
+      if(req.query.companyId){
+        query.companyId = req.query.companyId
+      }
+      if(req.query.status){
+        query.status = req.query.status;
+      }
+      const cursor = jobCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
 
     // await client.close();
-    }
+  }
 }
 run().catch(console.dir);
 
