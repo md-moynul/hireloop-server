@@ -4,6 +4,7 @@ dns.setServers(["1.1.1.1", "8.8.8.8"]);
 const express = require('express')
 const cors = require('cors')
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const { log } = require("node:console");
 require('dotenv').config()
 const app = express()
 app.use(cors())
@@ -29,25 +30,34 @@ async function run() {
   try {
     // await client.connect();
     const database = client.db("hireloop-db");
-    const jobCollection = database.collection("jobs");
+    const jobsCollection = database.collection("jobs");
+    const companyCollection = database.collection("companies");
 
-
+    // job related api
     app.post('/api/jobs', async (req, res) => {
-      const job = req.body
-      const result = await jobCollection.insertOne(job)
+      const job = req.body;
+      const result = await jobsCollection.insertOne(job)
       res.send(result)
     })
-    app.get('/api/jobs', async(req,res) =>{
-      let query ={};
-      if(req.query.companyId){
+    app.get('/api/jobs', async (req, res) => {
+      let query = {};
+      if (req.query.companyId) {
         query.companyId = req.query.companyId
       }
-      if(req.query.status){
+      if (req.query.status) {
         query.status = req.query.status;
       }
-      const cursor = jobCollection.find(query);
+      const cursor = jobsCollection.find(query);
       const result = await cursor.toArray();
       res.send(result)
+    })
+
+    // company related api 
+    app.post('/api/companies' , async(req,res) =>{
+      const company = req.body;
+      const result  = await companyCollection.insertOne(company)
+      res.send(result)
+      
     })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
