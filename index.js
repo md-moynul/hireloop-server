@@ -53,6 +53,24 @@ async function run() {
     })
 
     // company related api 
+    app.get('/api/my/company', async (req, res) => {
+  try {
+    let query = {};
+    if (req.query.recruiterId) {
+      query.recruiterId = req.query.recruiterId;
+    }
+    const result = await companyCollection.findOne(query);
+    
+    if (!result) {
+      return res.status(200).json(null); 
+    }
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json(null);
+  }
+});
     app.post('/api/companies' , async(req,res) =>{
       const company = req.body;
       const result  = await companyCollection.insertOne(company)
