@@ -3,7 +3,7 @@ dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { log } = require("node:console");
 require('dotenv').config()
 const app = express()
@@ -31,9 +31,22 @@ async function run() {
     // await client.connect();
     const database = client.db("hireloop-db");
     const jobsCollection = database.collection("jobs");
-    const companyCollection = database.collection("companies");
+    const companiesCollection = database.collection("companies");
+    const usersCollection = database.collection("user");
+    // user api
+    app.get('/api/users', async (req, res) => {
+      const result = await usersCollection.find().toArray()
+      res.send(result)
+
+    })
 
     // job related api
+    app.get('/api/jobs', async (req, res) => {
+      
+      const cursor = jobsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    })
     app.post('/api/jobs', async (req, res) => {
       const job = req.body;
       const result = await jobsCollection.insertOne(job)
@@ -53,29 +66,41 @@ async function run() {
     })
 
     // company related api 
-    app.get('/api/my/company', async (req, res) => {
-  try {
-    let query = {};
-    if (req.query.recruiterId) {
-      query.recruiterId = req.query.recruiterId;
-    }
-    const result = await companyCollection.findOne(query);
-    
-    if (!result) {
-      return res.status(200).json(null); 
-    }
-
-    return res.status(200).json(result);
-  } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json(null);
-  }
-});
-    app.post('/api/companies' , async(req,res) =>{
-      const company = req.body;
-      const result  = await companyCollection.insertOne(company)
+    app.get('/api/company/:id', async(req,res) =>{
+      const id = req.params.id;
+      const query = {
+        _id : new ObjectId(id)
+      }
+      const result = await companiesCollection.findOne(query)
       res.send(result)
-      
+    })
+    app.get('/api/companies' ,async(req,res) =>{
+      const result =await companiesCollection.find().toArray();
+      res.send(result)
+    })
+    app.get('/api/my/company', async (req, res) => {
+      try {
+        let query = {};
+        if (req.query.recruiterId) {
+          query.recruiterId = req.query.recruiterId;
+        }
+        const result = await companiesCollection.findOne(query);
+
+        if (!result) {
+          return res.status(200).json(null);
+        }
+
+        return res.status(200).json(result);
+      } catch (error) {
+        console.error("Error:", error);
+        return res.status(500).json(null);
+      }
+    });
+    app.post('/api/companies', async (req, res) => {
+      const company = req.body;
+      const result = await companiesCollection.insertOne(company)
+      res.send(result)
+
     })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
