@@ -41,6 +41,14 @@ async function run() {
     })
 
     // job related api
+    app.get('/api/jobs/:id' ,async(req,res) =>{
+      const id = req.params.id
+      const query = {
+        _id : new ObjectId(id)
+      }
+      const result = await jobsCollection.findOne(query)
+      res.send(result)
+    })
     app.get('/api/jobs', async (req, res) => {
       
       const cursor = jobsCollection.find();
