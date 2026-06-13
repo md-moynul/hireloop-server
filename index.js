@@ -33,6 +33,8 @@ async function run() {
     const jobsCollection = database.collection("jobs");
     const companiesCollection = database.collection("companies");
     const usersCollection = database.collection("user");
+    const applicationsCollection = database.collection('applications')
+
     // user api
     app.get('/api/users', async (req, res) => {
       const result = await usersCollection.find().toArray()
@@ -41,16 +43,16 @@ async function run() {
     })
 
     // job related api
-    app.get('/api/jobs/:id' ,async(req,res) =>{
+    app.get('/api/jobs/:id', async (req, res) => {
       const id = req.params.id
       const query = {
-        _id : new ObjectId(id)
+        _id: new ObjectId(id)
       }
       const result = await jobsCollection.findOne(query)
       res.send(result)
     })
     app.get('/api/jobs', async (req, res) => {
-      
+
       const cursor = jobsCollection.find();
       const result = await cursor.toArray();
       res.send(result)
@@ -73,17 +75,24 @@ async function run() {
       res.send(result)
     })
 
+    // application related api
+    app.post('/api/application', async (req, res) => {
+      const application = req.body;
+      const result = await applicationsCollection.insertOne(application)
+      res.send(result)
+    })
+
     // company related api 
-    app.get('/api/company/:id', async(req,res) =>{
+    app.get('/api/company/:id', async (req, res) => {
       const id = req.params.id;
       const query = {
-        _id : new ObjectId(id)
+        _id: new ObjectId(id)
       }
       const result = await companiesCollection.findOne(query)
       res.send(result)
     })
-    app.get('/api/companies' ,async(req,res) =>{
-      const result =await companiesCollection.find().toArray();
+    app.get('/api/companies', async (req, res) => {
+      const result = await companiesCollection.find().toArray();
       res.send(result)
     })
     app.get('/api/my/company', async (req, res) => {
