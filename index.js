@@ -62,7 +62,7 @@ async function run() {
       const result = await jobsCollection.insertOne(job)
       res.send(result)
     })
-    app.get('/api/jobs', async (req, res) => {
+    app.get('/api/my/jobs', async (req, res) => {
       let query = {};
       if (req.query.companyId) {
         query.companyId = req.query.companyId
