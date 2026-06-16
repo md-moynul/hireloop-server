@@ -81,7 +81,18 @@ async function run() {
       const result = await applicationsCollection.insertOne(application)
       res.send(result)
     })
-
+    app.get('/api/application',async(req,res) =>{
+      const query = {}
+      if(req.query.candidateId){
+        query.candidateId =  req.query.candidateId
+      }
+      if(req.query.jobId){
+        query.jobId = req.query.jobId
+      }
+      const cursor = applicationsCollection.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
+    })
     // company related api 
     app.get('/api/company/:id', async (req, res) => {
       const id = req.params.id;
