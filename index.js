@@ -34,7 +34,16 @@ async function run() {
     const companiesCollection = database.collection("companies");
     const usersCollection = database.collection("user");
     const applicationsCollection = database.collection('applications')
-
+    const plansCollection = database.collection('plans')
+    //plans api
+    app.get('/api/plans', async(req,res) =>{
+      const query = {}
+      if(req.query.plan_id){
+        query.planId = req.query.plan_id
+      }
+      const plan =await plansCollection.findOne(query)
+      res.send(plan)
+    })
     // user api
     app.get('/api/users', async (req, res) => {
       const result = await usersCollection.find().toArray()
@@ -81,12 +90,12 @@ async function run() {
       const result = await applicationsCollection.insertOne(application)
       res.send(result)
     })
-    app.get('/api/application',async(req,res) =>{
+    app.get('/api/application', async (req, res) => {
       const query = {}
-      if(req.query.candidateId){
-        query.candidateId =  req.query.candidateId
+      if (req.query.candidateId) {
+        query.candidateId = req.query.candidateId
       }
-      if(req.query.jobId){
+      if (req.query.jobId) {
         query.jobId = req.query.jobId
       }
       const cursor = applicationsCollection.find(query)
